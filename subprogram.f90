@@ -88,6 +88,46 @@
 	  	
 	endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   	
+! Get variables for the time integration and open outputfile
+	call timeloop_var(kk,dtmodel,nyears,DenRho,Refreeze,zs,Totvice, &
+		Totvfc,Totvacc,Totvsub,Totvsnd,Totvmelt,Totvbouy,Mrunoff, &
+		TotRunoff,Mrefreeze,Totrefreeze,Mrain,TotRain,Msurfmelt, &
+		TotSurfmelt,Msolin,TotSolIn,writeinprof,writeinspeed,writeindetail, &
+		numOutputProf,numOutputSpeed,numOutputDetail,outputProf, &
+		outputSpeed,outputDetail,Rho0out)
+
+! Write intitial profile to NetCDF-file and prepare output arrays
+        call write_initial(kk,kUL,Rho,M,T,Depth,Mlwc,Year,settingsfile,fname_p1, &
+		username)
+
+	allocate(out_1D((outputSpeed+50),18))
+	allocate(out_2D_dens((outputProf+50),proflayers))
+	allocate(out_2D_temp((outputProf+50),proflayers))
+	allocate(out_2D_lwc((outputProf+50),proflayers))
+	allocate(out_2D_depth((outputProf+50),proflayers))
+	allocate(out_2D_dRho((outputProf+50),proflayers))
+	allocate(out_2D_year((outputProf+50),proflayers))
+	allocate(out_2D_det_dens((outputDetail+50),detlayers))
+	allocate(out_2D_det_temp((outputDetail+50),detlayers))
+	allocate(out_2D_det_lwc((outputDetail+50),detlayers))
+	allocate(out_2D_det_refreeze((outputDetail+50),detlayers))
+	
+	out_1D(:,:) = 9.96921e+36 ! ###################################### set missing value
+	out_2D_dens(:,:) = 9.96921e+36 
+	out_2D_temp(:,:) = 9.96921e+36 
+	out_2D_lwc(:,:) = 9.96921e+36 
+	out_2D_depth(:,:) = 9.96921e+36 
+	out_2D_dRho(:,:) = 9.96921e+36 
+	out_2D_year(:,:) = 9.96921e+36 
+	out_2D_det_dens(:,:) = 9.96921e+36
+	out_2D_det_temp(:,:) = 9.96921e+36
+	out_2D_det_lwc(:,:) = 9.96921e+36
+	out_2D_det_refreeze(:,:) = 9.96921e+36
+
+! Time integration
+	print *, "Start of time loop"
+	do time = 1, numPoints
 
 ! Calculate the densification	  
 	  call densific(kk,kUL,dtmodel,R,rhoi,acav,tsav,Rho,T,domain)
