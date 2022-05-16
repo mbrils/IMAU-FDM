@@ -183,9 +183,13 @@
     if (numSnow == 1) then
         ! Use current temperature and wind speed for snow parameterisations
         if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
-            Rho0FM(step) = 362.1 + 2.78*(TempFM(step) - 273.15)
+            do step = 1,numPoints
+                Rho0FM(step) = 362.1 + 2.78*(TempFM(step) - 273.15)
+            end do
         else
-            Rho0FM(step) = 97.49 + 0.769*TempFM(step) + 4.49*ff10FM(step)
+            do step = 1,numPoints
+                Rho0FM(step) = 97.49 + 0.769*TempFM(step) + 4.49*ff10FM(step)
+            end do
         end if
     else
         ! Use mean temperature and wind speed, averaged over numSnow time steps
@@ -213,7 +217,6 @@
             end do
         end if
     end if
-
 	
 	print *, dtmodel
 
@@ -261,61 +264,65 @@
 
 
 !----------------------------- 	
-        subroutine ini_dens(kk,kUL,initdepth,dzmax,rho0,rhoi,R,acav,tsav, &
+    subroutine ini_dens(kk,kUL,initdepth,dzmax,rho0,rhoi,R,acav,tsav, &
         zs,DZ,Depth,Rho,DenRho,Mlwc,Refreeze,domain)
-        
-    	implicit none
-
-    	integer :: k,kk,kUL,initdepth    
-    	double precision :: drho,Ec,Eg,g,part1,cons
-	double precision :: tsav,acav,rho0,rhoi,dzmax,R,zs
-    	double precision,dimension(kk) :: DZ,Depth,Mlwc,Refreeze
-    	double precision, dimension(kk) :: Rho,DenRho
-    character*255 :: domain
- 
-    	Depth(kUL) = 0.5*dzmax
-    	DZ(kUL) = dzmax
-    	Rho(kUL) = rho0
-    	Mlwc(kUL) = 0.
-    	DenRho(kUL) = 0.	
-
-    	Ec = 60000.
-    	Eg = 42400.
-    	g = 9.81
     
-      	do k=kUL-1,1,-1
-       	 part1 = (rhoi-Rho(k+1))*exp((-Ec/(R*tsav))+(Eg/(R*tsav)))
-         if (Rho(k+1) .le. 550.) then
-          if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
-            cons = 0.6569 + 0.0067*log(acav)    ! FGRN055 new cons, new fit 1957-2020 run
-          else
-            cons = 1.435 - 0.151*log(acav)
-          endif
-	      drho = 0.07*dzmax*Rho(k+1)*g*part1
-         else
-          if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
-            cons = 1.7243 - 0.2011*log(acav)    ! FGRN055 new cons, new fit 1957-2020 run
-          else
-            cons = 2.366 - 0.293*log(acav)
-          endif
-	      if (acav.ge.1200.) cons = 0.25
-	      drho = 0.03*dzmax*Rho(k+1)*g*part1
-         endif
-         Rho(k) = drho + Rho(k+1)
-         if (Rho(k) .gt. rhoi) Rho(k) = rhoi
-        end do
+    implicit none
     
-        do k = kUL-1,1,-1
-         DZ(k) = dzmax
-         Mlwc(k) = 0.
-         DenRho(k) = 0.
-	     Refreeze(k) = 0.
-         Depth(k) = Depth(k+1) + 0.5*DZ(k+1) + 0.5*DZ(k)
-        enddo
+    ! declare arguments
+    integer, intent(in) :: kk, kUL, initdepth    
+    double precision, intent(in) :: dzmax, rho0, rhoi, R, acav, tsav
+    double precision, intent(inout) :: zs
+    double precision, dimension(kk), intent(inout) :: DZ, Depth, Rho, DenRho, Mlwc, Refreeze
+    character*255, intent(in) :: domain
 
-        zs = 0.
+    ! declare local variables
+    integer :: k
+    double precision :: drho, Ec, Eg, g, part1, cons
+    
+    Depth(kUL) = 0.5*dzmax
+    DZ(kUL) = dzmax
+    Rho(kUL) = rho0
+    Mlwc(kUL) = 0.
+    DenRho(kUL) = 0.
+    
+    Ec = 60000.
+    Eg = 42400.
+    g = 9.81
+    
+    do k=kUL-1,1,-1
+        part1 = (rhoi-Rho(k+1))*exp((-Ec/(R*tsav))+(Eg/(R*tsav)))
+        if (Rho(k+1) .le. 550.) then
+            if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
+                cons = 0.6688 + 0.0048*log(acav)      ! fit after debugging heat eq.
+            else
+                cons = 1.435 - 0.151*log(acav)
+            endif
+            drho = 0.07*dzmax*Rho(k+1)*g*part1
+        else
+            if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
+                cons = 1.7465 - 0.2045*log(acav)   ! fit after debuggin heat eq.
+            else
+                cons = 2.366 - 0.293*log(acav)
+            endif
+            if (cons .lt. 0.25) cons = 0.25
+            drho = 0.03*dzmax*Rho(k+1)*g*part1
+        endif
+        Rho(k) = drho + Rho(k+1)
+        if (Rho(k) .gt. rhoi) Rho(k) = rhoi
+    enddo
+    
+    do k = kUL-1,1,-1
+        DZ(k) = dzmax
+        Mlwc(k) = 0.
+        DenRho(k) = 0.
+        Refreeze(k) = 0.
+        Depth(k) = Depth(k+1) + 0.5*DZ(k+1) + 0.5*DZ(k)
+    enddo
+    
+    zs = 0.
                
-    	end subroutine
+    end subroutine ini_dens
 
 
 !----------------------------- 
