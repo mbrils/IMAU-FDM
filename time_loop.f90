@@ -265,18 +265,18 @@
     do k=1,kUL
         if (Rho(k) .le. 550.) then
             if ((trim(domain) .eq. "FGRN11") .or. (trim(domain) .eq. "FGRN055")) then
-                MO = 0.6688 + 0.0048*log(acav)      ! fit after debugging heat eq.
+                MO = 0.6688 + 0.0048*log(acav)
             else
-                MO = 1.435 - 0.151*log(acav)
+                MO = 1.288 - 0.117*log(acav)
             endif
             if (MO.lt.0.25) MO = 0.25
             part1 = exp((-Ec/(R*T(k)))+(Eg/(R*T(1))))
             Krate = 0.07*MO*acav*g*part1 
         else
             if ((trim(domain) .eq. "FGRN11") .or. (trim(domain) .eq. "FGRN055")) then
-                MO = 1.7465 - 0.2045*log(acav)   ! fit after debuggin heat eq.
+                MO = 1.7465 - 0.2045*log(acav)
             else
-                MO = 2.366 - 0.293*log(acav)
+                MO = 6.387 *(acav*(-0.477))+0.195
             endif
             if (MO.lt.0.25) MO = 0.25
             part1 = exp((-Ec/(R*T(k)))+(Eg/(R*T(1))))

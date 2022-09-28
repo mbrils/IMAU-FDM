@@ -188,7 +188,7 @@
             end do
         else
             do step = 1,numPoints
-                Rho0FM(step) = 97.49 + 0.769*TempFM(step) + 4.49*ff10FM(step)
+                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
             end do
         end if
     else
@@ -208,12 +208,12 @@
             TempSnow = sum( TempFM(1:numSnow) )/numSnow
             ff10Snow = sum( ff10FM(1:numSnow) )/numSnow
             do step = 1,numSnow
-                Rho0FM(step) = 97.49 + 0.769*TempSnow + 4.49*ff10Snow
+                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
             end do
             do step = numSnow+1,numPoints
                 TempSnow = sum( TempFM(step-numSnow:step) )/numSnow
                 ff10Snow = sum( ff10FM(step-numSnow:step) )/numSnow
-                Rho0FM(step) = 97.49 + 0.769*TempSnow + 4.49*ff10Snow
+                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
             end do
         end if
     end if
@@ -294,16 +294,16 @@
         part1 = (rhoi-Rho(k+1))*exp((-Ec/(R*tsav))+(Eg/(R*tsav)))
         if (Rho(k+1) .le. 550.) then
             if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
-                cons = 0.6688 + 0.0048*log(acav)      ! fit after debugging heat eq.
+                cons = 0.6688 + 0.0048*log(acav)
             else
-                cons = 1.435 - 0.151*log(acav)
+                cons = 1.288 - 0.117*log(acav)
             endif
             drho = 0.07*dzmax*Rho(k+1)*g*part1
         else
             if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
-                cons = 1.7465 - 0.2045*log(acav)   ! fit after debuggin heat eq.
+                cons = 1.7465 - 0.2045*log(acav)
             else
-                cons = 2.366 - 0.293*log(acav)
+                cons = 6.387 *(acav*(-0.477))+0.195
             endif
             if (cons .lt. 0.25) cons = 0.25
             drho = 0.03*dzmax*Rho(k+1)*g*part1
