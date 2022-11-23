@@ -183,12 +183,14 @@
     if (numSnow == 1) then
         ! Use current temperature and wind speed for snow parameterisations
         if (trim(domain) .eq. "FGRN11" .or. trim(domain) .eq. "FGRN055") then
+            ! Greenland
             do step = 1,numPoints
-                Rho0FM(step) = 362.1 + 2.78*(TempFM(step) - 273.15)
+                Rho0FM(step) = 362.1 + 2.78*(TempFM(step) - 273.15)     ! Fasuto et al. (2018)
             end do
         else
+            ! Not Greenland
             do step = 1,numPoints
-                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
+                Rho0FM(step) = 83. + 0.77*TempFM(step) + 11.67*ff10FM(step) ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
             end do
         end if
     else
@@ -197,23 +199,23 @@
             ! Greenland
             TempSnow = sum( TempFM(1:numSnow) )/numSnow
             do step = 1,numSnow
-                Rho0FM(step) = 362.1 + 2.78*(TempSnow - 273.15)
+                Rho0FM(step) = 362.1 + 2.78*(TempSnow - 273.15)         ! Fausto et al. (2018)
             end do
             do step = numSnow+1,numPoints
                 TempSnow = sum( TempFM(step-numSnow:step) )/numSnow
-                Rho0FM(step) = 362.1 + 2.78*(TempSnow - 273.15)
+                Rho0FM(step) = 362.1 + 2.78*(TempSnow - 273.15)         ! Fausto et al. (2018)
             end do
         else
             ! Not Greenland
             TempSnow = sum( TempFM(1:numSnow) )/numSnow
             ff10Snow = sum( ff10FM(1:numSnow) )/numSnow
             do step = 1,numSnow
-                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
+                Rho0FM(step) = 83. + 0.77*TempSnow + 11.67*ff10Snow     ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
             end do
             do step = numSnow+1,numPoints
                 TempSnow = sum( TempFM(step-numSnow:step) )/numSnow
                 ff10Snow = sum( ff10FM(step-numSnow:step) )/numSnow
-                Rho0FM(step) = 83 + 0.77 *TempSnow + 11.67*ff10Snow
+                Rho0FM(step) = 83. + 0.77*TempSnow + 11.67*ff10Snow     ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
             end do
         end if
     end if
