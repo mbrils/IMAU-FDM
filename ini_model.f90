@@ -191,6 +191,7 @@
             ! Not Greenland
             do step = 1,numPoints
                 Rho0FM(step) = 83. + 0.77*TempFM(step) + 11.67*ff10FM(step) ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
+                Rho0FM(step) = min(470., Rho0FM(step))
             end do
         end if
     else
@@ -211,11 +212,13 @@
             ff10Snow = sum( ff10FM(1:numSnow) )/numSnow
             do step = 1,numSnow
                 Rho0FM(step) = 83. + 0.77*TempSnow + 11.67*ff10Snow     ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
+                Rho0FM(step) = min(470., Rho0FM(step))
             end do
             do step = numSnow+1,numPoints
                 TempSnow = sum( TempFM(step-numSnow:step) )/numSnow
                 ff10Snow = sum( ff10FM(step-numSnow:step) )/numSnow
                 Rho0FM(step) = 83. + 0.77*TempSnow + 11.67*ff10Snow     ! Veldhuijsen (2022) - adjusted from Lenearts(2012)
+                Rho0FM(step) = min(470., Rho0FM(step))
             end do
         end if
     end if
