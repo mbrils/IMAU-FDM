@@ -1,5 +1,5 @@
-# IMAU-FDM v1.2G
-This git repository contains the Fortran code of version 1.2G of the IMAU Firn Densification Model (IMAU-FDM). The development of IMAU-FDM has moved to the following repository: https://github.com/IMAU-ice-and-climate/IMAU-FDM. For the latest version of the code, please look there.
+# IMAU-FDM v1.2
+This git repository contains the Fortran code of versions 1.2G and 1.2A of the IMAU Firn Densification Model (IMAU-FDM). The development of IMAU-FDM has moved to the following repository: https://github.com/IMAU-ice-and-climate/IMAU-FDM. For the latest version of the code, please look there.
 
 ## Code description
 
